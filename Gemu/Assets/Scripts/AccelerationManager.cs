@@ -8,10 +8,14 @@ public class AccelerationManager : MonoBehaviour
     public GameObject gasGauge;
     GaugeSliderScript gasGaugeScript;
 
+    public GameObject car;
+    CarControllerScript carScript;
+
     void Start()
     {
         x = 0;
         gasGaugeScript = gasGauge.GetComponent<GaugeSliderScript>();
+        carScript = car.GetComponent<CarControllerScript>();
     }
 
     void Update()
@@ -19,5 +23,8 @@ public class AccelerationManager : MonoBehaviour
         x = Input.GetAxis("Gas");
         x *= 400;
         gasGaugeScript.SetPosition(x);
+
+        x /= 400;
+        carScript.SetAcceleration(x);
     }
 }
