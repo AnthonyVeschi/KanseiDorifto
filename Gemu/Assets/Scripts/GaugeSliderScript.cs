@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SteeringSliderGauge : MonoBehaviour
+public class GaugeSliderScript : MonoBehaviour
 {
     public void SetPosition(float s)
     {

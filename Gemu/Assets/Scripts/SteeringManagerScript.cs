@@ -26,9 +26,9 @@ public class SteeringManagerScript : MonoBehaviour
     public GameObject RawGauge;
     public GameObject FlatGauge;
     public GameObject SmoothGauge;
-    SteeringSliderGauge rawGaugeScript;
-    SteeringSliderGauge flatGaugeScript;
-    SteeringSliderGauge smoothGaugeScript;
+    GaugeSliderScript rawGaugeScript;
+    GaugeSliderScript flatGaugeScript;
+    GaugeSliderScript smoothGaugeScript;
 
     public GameObject Tires;
     TireRotateScript tireScript;
@@ -40,9 +40,9 @@ public class SteeringManagerScript : MonoBehaviour
         sFlat = 0f;
         sSmooth = 0f;
 
-        rawGaugeScript = RawGauge.GetComponent<SteeringSliderGauge>();
-        flatGaugeScript = FlatGauge.GetComponent<SteeringSliderGauge>();
-        smoothGaugeScript = SmoothGauge.GetComponent<SteeringSliderGauge>();
+        rawGaugeScript = RawGauge.GetComponent<GaugeSliderScript>();
+        flatGaugeScript = FlatGauge.GetComponent<GaugeSliderScript>();
+        smoothGaugeScript = SmoothGauge.GetComponent<GaugeSliderScript>();
 
         tireScript = Tires.GetComponent<TireRotateScript>();
     }
