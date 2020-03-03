@@ -8,14 +8,10 @@ public class BrakeManager : MonoBehaviour
     public GameObject brakeGauge;
     GaugeSliderScript brakeGaugeScript;
 
-    public GameObject car;
-    CarControllerScript carScript;
-
     void Start()
     {
         b = 0;
         brakeGaugeScript = brakeGauge.GetComponent<GaugeSliderScript>();
-        carScript = car.GetComponent<CarControllerScript>();
     }
 
     void Update()
@@ -23,8 +19,5 @@ public class BrakeManager : MonoBehaviour
         b = Input.GetAxis("Brake");
         b *= 400;
         brakeGaugeScript.SetPosition(b);
-
-        b /= 400;
-        carScript.SetBraking(b);
     }
 }

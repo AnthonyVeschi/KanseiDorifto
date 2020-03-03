@@ -18,8 +18,6 @@ public class SteeringManagerScript : MonoBehaviour
     float realSpeed;
     float newS;
 
-    public bool sloMo;
-
     public bool steeringIsRaw;
     public bool steeringIsFlat;
 
@@ -35,8 +33,6 @@ public class SteeringManagerScript : MonoBehaviour
 
     void Start()
     {
-        if (sloMo) { Time.timeScale = 0.2f; }
-
         sFlat = 0f;
         sSmooth = 0f;
 
