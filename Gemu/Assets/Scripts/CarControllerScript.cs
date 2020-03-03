@@ -12,9 +12,9 @@ public class CarControllerScript : MonoBehaviour
     float x;
     float drag;
     float brakePlusDrag;
-    public float accelCoef = 100f;
-    public float brakeCoef = 100f;
-    public float dragCoef = 100f;
+    public float accelCoef = 60f;
+    public float brakeCoef = 40f;
+    public float dragCoef = 0.005f;
 
     public Text vt;
     public Text at;
@@ -25,9 +25,19 @@ public class CarControllerScript : MonoBehaviour
     GaugeSliderScript vSliderScript;
     GaugeSliderScript aSliderScript;
     GaugeSliderScript dSliderScript;
-    public float maxV = 1000f;
-    public float maxA = 1000f;
-    public float maxD = 1000f;
+    public float maxV = 155f;
+    public float maxA = 1f;
+    public float maxD = 1f;
+
+    float steering;
+    public float maxSteeringAngle = 65f;
+    public Transform rearPivot;
+    public Transform frontPivot;
+
+    public GameObject forwardArrow;
+    public GameObject steeringArrow;
+    public GameObject steeringManager;
+    SteeringManagerScript steeringManagerScript;
 
     public bool sloMo;
 
@@ -44,6 +54,8 @@ public class CarControllerScript : MonoBehaviour
         vSliderScript = vSlider.GetComponent<GaugeSliderScript>();
         aSliderScript = aSlider.GetComponent<GaugeSliderScript>();
         dSliderScript = dSlider.GetComponent<GaugeSliderScript>();
+
+        steeringManagerScript = steeringManager.GetComponent<SteeringManagerScript>();
     }
 
     void Update()
@@ -67,5 +79,19 @@ public class CarControllerScript : MonoBehaviour
         vSliderScript.SetPosition((v / maxV) * 400);
         aSliderScript.SetPosition((accel / maxA) * 400);
         dSliderScript.SetPosition((drag / maxD) * 400);
+
+
+        steering = steeringManagerScript.GetSteering();
+        steering = Mathf.Lerp(-maxSteeringAngle, maxSteeringAngle, steering);
+
+        //steeringArrow.transform.Rotate(Vector3.forward, )
+
+
+        ///*
+        if (transform.position.x >= 69) { transform.position = new Vector3(-68f, transform.position.y, transform.position.z); }
+        if (transform.position.x <= -69) { transform.position = new Vector3(68f, transform.position.y, transform.position.z); }
+        if (transform.position.y >= 39) { transform.position = new Vector3(transform.position.x, -38f, transform.position.z); }
+        if (transform.position.y <= -39) { transform.position = new Vector3(transform.position.x, 38f, transform.position.z); }
+        //*/
     }
 }

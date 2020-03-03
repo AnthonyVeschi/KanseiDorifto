@@ -58,6 +58,11 @@ public class SteeringManagerScript : MonoBehaviour
         tireScript.Rotate(s);
     }
 
+    public float GetSteering()
+    {
+        return s;
+    }
+
     void Raw()
     {
         rawGaugeScript.SetPosition(x);
