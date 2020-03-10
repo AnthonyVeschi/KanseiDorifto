@@ -20,16 +20,20 @@ public class SteeringManagerScript : MonoBehaviour
 
     public bool steeringIsRaw;
     public bool steeringIsFlat;
-
+    public bool steeringIsLinear;
     public GameObject RawGauge;
+    public GameObject NonLinearGauge;
     public GameObject FlatGauge;
     public GameObject SmoothGauge;
     GaugeSliderScript rawGaugeScript;
+    GaugeSliderScript nonLinearGaugeScript;
     GaugeSliderScript flatGaugeScript;
     GaugeSliderScript smoothGaugeScript;
 
     public GameObject Tires;
     TireRotateScript tireScript;
+
+    public float nonLinearPower = 3.4f;
 
     void Start()
     {
@@ -37,6 +41,7 @@ public class SteeringManagerScript : MonoBehaviour
         sSmooth = 0f;
 
         rawGaugeScript = RawGauge.GetComponent<GaugeSliderScript>();
+        nonLinearGaugeScript = NonLinearGauge.GetComponent<GaugeSliderScript>();
         flatGaugeScript = FlatGauge.GetComponent<GaugeSliderScript>();
         smoothGaugeScript = SmoothGauge.GetComponent<GaugeSliderScript>();
 
@@ -46,9 +51,10 @@ public class SteeringManagerScript : MonoBehaviour
     void Update()
     {
         x = Input.GetAxis("Horizontal");
-        x *= 200;
-
         Raw();
+        NonLinear();
+        if (!steeringIsLinear) { x = GetNonLinearX(x); }
+        x *= 200;
         Flat();
         Smooth();
 
@@ -65,7 +71,12 @@ public class SteeringManagerScript : MonoBehaviour
 
     void Raw()
     {
-        rawGaugeScript.SetPosition(x);
+        rawGaugeScript.SetPosition(x*200);
+    }
+
+    void NonLinear()
+    {
+        nonLinearGaugeScript.SetPosition(GetNonLinearX(x)*200);
     }
 
     void Flat()
@@ -95,5 +106,14 @@ public class SteeringManagerScript : MonoBehaviour
         }
 
         smoothGaugeScript.SetPosition(sSmooth);
+    }
+
+    float GetNonLinearX(float myX)
+    {
+        bool neg = (myX < 0);
+        float ret = Mathf.Pow(myX, nonLinearPower);
+        if (neg) { ret = -(Mathf.Abs(ret)); }
+        else { ret = Mathf.Abs(ret); }
+        return ret;
     }
 }
