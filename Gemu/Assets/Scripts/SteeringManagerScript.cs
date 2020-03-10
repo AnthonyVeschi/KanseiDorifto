@@ -33,7 +33,7 @@ public class SteeringManagerScript : MonoBehaviour
     public GameObject Tires;
     TireRotateScript tireScript;
 
-    public float nonLinearPower = 3.4f;
+    public float nonLinearPower = 2f;
 
     void Start()
     {
