@@ -31,13 +31,17 @@ public class CarControllerScript : MonoBehaviour
 
     float steering;
     public float maxSteeringAngle = 65f;
+    public float steeringCoef = 1;
+    float carRotation;
     public Transform rearPivot;
     public Transform frontPivot;
 
     public GameObject forwardArrow;
     public GameObject steeringArrow;
     public GameObject steeringManager;
+    public Text st;
     SteeringManagerScript steeringManagerScript;
+    Vector3 eulers;
 
     public bool sloMo;
 
@@ -82,16 +86,23 @@ public class CarControllerScript : MonoBehaviour
 
 
         steering = steeringManagerScript.GetSteering();
-        steering = Mathf.Lerp(-maxSteeringAngle, maxSteeringAngle, steering);
+        steering = (steering + 1) / 2;
+        steering = Mathf.Lerp(maxSteeringAngle, -maxSteeringAngle, steering);
 
-        //steeringArrow.transform.Rotate(Vector3.forward, )
+        st.text = "s: " + Mathf.Round(steering);
+        eulers = new Vector3(0f, 0f, steering);
+        steeringArrow.transform.localEulerAngles = eulers;
+
+        carRotation = steering * x * steeringCoef * Time.deltaTime;
+        transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
 
 
+        //accurate when camera size is 25 and centered on (0, 0, 0)
         ///*
-        if (transform.position.x >= 69) { transform.position = new Vector3(-68f, transform.position.y, transform.position.z); }
-        if (transform.position.x <= -69) { transform.position = new Vector3(68f, transform.position.y, transform.position.z); }
-        if (transform.position.y >= 39) { transform.position = new Vector3(transform.position.x, -38f, transform.position.z); }
-        if (transform.position.y <= -39) { transform.position = new Vector3(transform.position.x, 38f, transform.position.z); }
+        if (transform.position.x >= 43) { transform.position = new Vector3(-42f, transform.position.y, transform.position.z); }
+        if (transform.position.x <= -43) { transform.position = new Vector3(42f, transform.position.y, transform.position.z); }
+        if (transform.position.y >= 25) { transform.position = new Vector3(transform.position.x, -24f, transform.position.z); }
+        if (transform.position.y <= -25) { transform.position = new Vector3(transform.position.x, 24f, transform.position.z); }
         //*/
     }
 }
