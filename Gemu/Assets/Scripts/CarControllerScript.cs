@@ -95,6 +95,12 @@ public class CarControllerScript : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (Time.timeScale == 1f) { Time.timeScale = 0.2f; }
+            else { Time.timeScale = 1f; }
+        }
+
         Accel();
         AccelUI();
         Steering();
@@ -150,9 +156,9 @@ public class CarControllerScript : MonoBehaviour
         }
         else if (Input.GetButtonDown("Drift"))
         {
-            Debug.Log("FUCK");
             drifting = true;
-            driftAngle = ((driftAngleSteeringCoef * steering) + (driftAngleVelocityCoef * v)) * driftAngleCoef;
+            driftAngle = ((driftAngleSteeringCoef * Mathf.Abs(steering)) + (driftAngleVelocityCoef * v)) * driftAngleCoef;
+            driftAngle *= ((steering >= 0) ? 1 : -1);
             driftAngleText.text = "drift angle: " + Mathf.Round(driftAngle);
             StartCoroutine("DriftingInitialLerp");
         }
@@ -165,19 +171,20 @@ public class CarControllerScript : MonoBehaviour
     IEnumerator DriftingInitialLerp()
     {
         driftingInitialLerpFinished = false;
-        float startTime = Time.deltaTime;
+        float startTime = Time.time;
         float t = 0;
         float a;
 
         while (t <= driftingInitalLerpTime)
         {
-            a = Mathf.SmoothStep(0f, driftAngle, t);
-            eulers = new Vector3(0f, 0f, (a * chasisDriftAngleCoef));
+            a = Mathf.SmoothStep(0f, (driftAngle * chasisDriftAngleCoef), (t / driftingInitalLerpTime));
+            eulers = new Vector3(0f, 0f, a);
             chasis.transform.localEulerAngles = eulers;
-            t = Time.deltaTime - startTime;
+            t = Time.time - startTime;
             yield return null;
         }
         eulers = new Vector3(0f, 0f, (driftAngle * chasisDriftAngleCoef));
+        chasis.transform.localEulerAngles = eulers;
         driftingInitialLerpFinished = true;
     }
 
