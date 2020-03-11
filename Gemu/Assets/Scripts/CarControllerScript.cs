@@ -51,7 +51,9 @@ public class CarControllerScript : MonoBehaviour
     public Text ust;
     SteeringManagerScript steeringManagerScript;
     public GameObject UndersteeringSlider;
+    public GameObject UndersteeringMagnitudeSlider;
     GaugeSliderScript UndersteeringSliderScript;
+    GaugeSliderScript UndersteeringMagnitudeSliderScript;
     Vector3 eulers;
 
     public float wrapAroundX = 43f;
@@ -75,6 +77,7 @@ public class CarControllerScript : MonoBehaviour
 
         steeringManagerScript = steeringManager.GetComponent<SteeringManagerScript>();
         UndersteeringSliderScript = UndersteeringSlider.GetComponent<GaugeSliderScript>();
+        UndersteeringMagnitudeSliderScript = UndersteeringMagnitudeSlider.GetComponent<GaugeSliderScript>();
     }
 
     void Update()
@@ -134,6 +137,7 @@ public class CarControllerScript : MonoBehaviour
         st.text = "s: " + Mathf.Round(steering);
         ust.text = "u: " + Mathf.Round(understeering);
         UndersteeringSliderScript.SetPosition(-(understeering * (200 / 65)));
+        UndersteeringMagnitudeSliderScript.SetPosition((1 - understeerFrac) * 400);
         eulers = new Vector3(0f, 0f, steering);
         steeringArrow.transform.localEulerAngles = eulers;
         eulers = new Vector3(0f, 0f, understeering);
