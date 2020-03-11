@@ -31,7 +31,7 @@ public class CarControllerScript : MonoBehaviour
 
     float steering;
     float understeering;
-    public float maxSteeringAngle = 65f;
+    public float maxSteeringAngle = 35f;
     public float steeringCoef = 6f;
     public float minUndersteerV = 45f;
     public float minUndersteerAngle = 10f;
@@ -56,6 +56,17 @@ public class CarControllerScript : MonoBehaviour
     GaugeSliderScript UndersteeringMagnitudeSliderScript;
     Vector3 eulers;
 
+    bool drifting;
+    bool driftingInitialLerpFinished;
+    public float driftingInitalLerpTime = 0.5f;
+    float driftAngle;
+    public float driftAngleCoef = 1f;
+    public float driftAngleSteeringCoef = 0.5f;
+    public float driftAngleVelocityCoef = 0.5f;
+    public GameObject chasis;
+    public float chasisDriftAngleCoef = 2f;
+    public Text driftAngleText;
+
     public float wrapAroundX = 43f;
     public float wrapAroundY = 25f;
 
@@ -78,6 +89,8 @@ public class CarControllerScript : MonoBehaviour
         steeringManagerScript = steeringManager.GetComponent<SteeringManagerScript>();
         UndersteeringSliderScript = UndersteeringSlider.GetComponent<GaugeSliderScript>();
         UndersteeringMagnitudeSliderScript = UndersteeringMagnitudeSlider.GetComponent<GaugeSliderScript>();
+
+        drifting = false;
     }
 
     void Update()
@@ -126,17 +139,53 @@ public class CarControllerScript : MonoBehaviour
         understeerFrac = 1f - (understeerDiffV / maxUndersteerDiffV);
         understeering = Mathf.Max(Mathf.Min(minUndersteerAngle, Mathf.Abs(steering)), Mathf.Abs(steering * understeerFrac * understeerCoef));
         understeering *= ((steering >= 0) ? 1 : -1);
+        
+        if (drifting)
+        {
+            //handle drifting controls and stop drifting
+            if (driftingInitialLerpFinished)
+            {
 
+            }
+        }
+        else if (Input.GetButtonDown("Drift"))
+        {
+            Debug.Log("FUCK");
+            drifting = true;
+            driftAngle = ((driftAngleSteeringCoef * steering) + (driftAngleVelocityCoef * v)) * driftAngleCoef;
+            driftAngleText.text = "drift angle: " + Mathf.Round(driftAngle);
+            StartCoroutine("DriftingInitialLerp");
+        }
+        
         //carRotation = steering * x * steeringCoef * Time.deltaTime;
         carRotation = understeering * x * steeringCoef * Time.deltaTime;
         transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
+    }
+
+    IEnumerator DriftingInitialLerp()
+    {
+        driftingInitialLerpFinished = false;
+        float startTime = Time.deltaTime;
+        float t = 0;
+        float a;
+
+        while (t <= driftingInitalLerpTime)
+        {
+            a = Mathf.SmoothStep(0f, driftAngle, t);
+            eulers = new Vector3(0f, 0f, (a * chasisDriftAngleCoef));
+            chasis.transform.localEulerAngles = eulers;
+            t = Time.deltaTime - startTime;
+            yield return null;
+        }
+        eulers = new Vector3(0f, 0f, (driftAngle * chasisDriftAngleCoef));
+        driftingInitialLerpFinished = true;
     }
 
     void SteeringUI()
     {
         st.text = "s: " + Mathf.Round(steering);
         ust.text = "u: " + Mathf.Round(understeering);
-        UndersteeringSliderScript.SetPosition(-(understeering * (200 / 65)));
+        UndersteeringSliderScript.SetPosition(-(understeering * (200 / maxSteeringAngle)));
         UndersteeringMagnitudeSliderScript.SetPosition((1 - understeerFrac) * 400);
         eulers = new Vector3(0f, 0f, steering);
         steeringArrow.transform.localEulerAngles = eulers;
