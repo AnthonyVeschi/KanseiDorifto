@@ -50,22 +50,36 @@ public class CarControllerScript : MonoBehaviour
     public Text st;
     public Text ust;
     SteeringManagerScript steeringManagerScript;
-    public GameObject UndersteeringSlider;
-    public GameObject UndersteeringMagnitudeSlider;
-    GaugeSliderScript UndersteeringSliderScript;
-    GaugeSliderScript UndersteeringMagnitudeSliderScript;
+    public GameObject understeeringSlider;
+    public GameObject understeeringMagnitudeSlider;
+    GaugeSliderScript understeeringSliderScript;
+    GaugeSliderScript understeeringMagnitudeSliderScript;
     Vector3 eulers;
 
     bool drifting;
     bool driftingInitialLerpFinished;
-    public float driftingInitalLerpTime = 0.5f;
+    public float driftingInitalLerpTime = 0.37f;
     float driftAngle;
     public float driftAngleCoef = 1f;
     public float driftAngleSteeringCoef = 0.5f;
     public float driftAngleVelocityCoef = 0.5f;
     public GameObject chasis;
-    public float chasisDriftAngleCoef = 2f;
+    public float chasisDriftAngleCoef = 1.5f;
+    float driftDecayRate;
+    float driftGainRate;
+    public float driftDecayVelocityCoef = 5f;
+    public float driftGainVelocityCoef = 5f;
+    public float driftDecaySteeringCoef = 0.4f;
+    public float driftGainSteeringCoef = 0.4f;
+    public float driftDecayCoef = 1f;
+    public float driftGainCoef = 1f;
+    public float minDriftAngle = 5f;
+    bool driftIsPositive;
+
     public Text driftAngleText;
+    public GameObject driftSlider;
+    GaugeSliderScript driftSliderScript;
+    public float maxDriftAngle = 45f;
 
     public float wrapAroundX = 43f;
     public float wrapAroundY = 25f;
@@ -87,8 +101,10 @@ public class CarControllerScript : MonoBehaviour
         dSliderScript = dSlider.GetComponent<GaugeSliderScript>();
 
         steeringManagerScript = steeringManager.GetComponent<SteeringManagerScript>();
-        UndersteeringSliderScript = UndersteeringSlider.GetComponent<GaugeSliderScript>();
-        UndersteeringMagnitudeSliderScript = UndersteeringMagnitudeSlider.GetComponent<GaugeSliderScript>();
+        understeeringSliderScript = understeeringSlider.GetComponent<GaugeSliderScript>();
+        understeeringMagnitudeSliderScript = understeeringMagnitudeSlider.GetComponent<GaugeSliderScript>();
+
+        driftSliderScript = driftSlider.GetComponent<GaugeSliderScript>();
 
         drifting = false;
     }
@@ -151,7 +167,24 @@ public class CarControllerScript : MonoBehaviour
             //handle drifting controls and stop drifting
             if (driftingInitialLerpFinished)
             {
+                driftDecayRate = ((((maxV - v) / maxV) * driftDecayVelocityCoef * Mathf.Abs(steering)) + (Mathf.Abs(steering) * driftDecaySteeringCoef)) * driftDecayCoef;
+                //driftGainRate = (((v / maxV) * driftGainVelocityCoef * Mathf.Abs(steering)) + (Mathf.Abs(steering) * driftGainSteeringCoef)) * driftGainCoef;
+                Debug.Log("driftDecayVelocity: " + Mathf.Round(((((maxV - v) / maxV) * driftDecayVelocityCoef * Mathf.Abs(steering)) * 1000) / 1000) + "    driftDecaySteering: " + Mathf.Round(((Mathf.Abs(steering) * driftDecaySteeringCoef) * 1000) / 1000));
+                if (driftIsPositive)
+                {
+                    if (steering >= 0) { driftAngle += driftGainRate; }
+                    else { driftAngle -= driftDecayRate; }
+                }
+                else
+                {
+                    if (steering <= 0) { driftAngle -= driftGainRate; }
+                    else { driftAngle += driftDecayRate; }
+                }
+                eulers = new Vector3(0f, 0f, (driftAngle * chasisDriftAngleCoef));
+                chasis.transform.localEulerAngles = eulers;
 
+                driftSliderScript.SetPosition(-driftAngle * (200 / maxDriftAngle));
+                driftAngleText.text = "drift angle: " + Mathf.Round(driftAngle);
             }
         }
         else if (Input.GetButtonDown("Drift"))
@@ -159,12 +192,13 @@ public class CarControllerScript : MonoBehaviour
             drifting = true;
             driftAngle = ((driftAngleSteeringCoef * Mathf.Abs(steering)) + (driftAngleVelocityCoef * v)) * driftAngleCoef;
             driftAngle *= ((steering >= 0) ? 1 : -1);
+            driftIsPositive = (driftAngle >= 0);
             driftAngleText.text = "drift angle: " + Mathf.Round(driftAngle);
             StartCoroutine("DriftingInitialLerp");
         }
         
         //carRotation = steering * x * steeringCoef * Time.deltaTime;
-        carRotation = understeering * x * steeringCoef * Time.deltaTime;
+        //carRotation = understeering * x * steeringCoef * Time.deltaTime;
         transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
     }
 
@@ -180,20 +214,27 @@ public class CarControllerScript : MonoBehaviour
             a = Mathf.SmoothStep(0f, (driftAngle * chasisDriftAngleCoef), (t / driftingInitalLerpTime));
             eulers = new Vector3(0f, 0f, a);
             chasis.transform.localEulerAngles = eulers;
+            driftSliderScript.SetPosition(-(a / chasisDriftAngleCoef) * (200 / maxDriftAngle));
             t = Time.time - startTime;
             yield return null;
         }
         eulers = new Vector3(0f, 0f, (driftAngle * chasisDriftAngleCoef));
         chasis.transform.localEulerAngles = eulers;
+        driftSliderScript.SetPosition(-driftAngle * (200 / maxDriftAngle));
         driftingInitialLerpFinished = true;
+    }
+
+    IEnumerator DriftingRecover()
+    {
+        yield return null;
     }
 
     void SteeringUI()
     {
         st.text = "s: " + Mathf.Round(steering);
         ust.text = "u: " + Mathf.Round(understeering);
-        UndersteeringSliderScript.SetPosition(-(understeering * (200 / maxSteeringAngle)));
-        UndersteeringMagnitudeSliderScript.SetPosition((1 - understeerFrac) * 400);
+        understeeringSliderScript.SetPosition(-(understeering * (200 / maxSteeringAngle)));
+        understeeringMagnitudeSliderScript.SetPosition((1 - understeerFrac) * 400);
         eulers = new Vector3(0f, 0f, steering);
         steeringArrow.transform.localEulerAngles = eulers;
         eulers = new Vector3(0f, 0f, understeering);
