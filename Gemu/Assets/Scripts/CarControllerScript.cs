@@ -76,6 +76,7 @@ public class CarControllerScript : MonoBehaviour
     bool driftIsPositive;
     public float minDriftAngle = 5f;
     bool driftEnded;
+    bool recovering;
     public float driftRecoverTime = 0.2f;
 
     public Text driftAngleText;
@@ -167,20 +168,29 @@ public class CarControllerScript : MonoBehaviour
         if (Input.GetButtonDown("Drift") && !drifting)
         {
             drifting = true;
+            recovering = false;
             driftAngle = 0;
             driftTargetAngle = ((driftTargetAngleSteeringCoef * Mathf.Abs(steering)) + (driftTargetAngleVelocityCoef * v)) * driftTargetAngleCoef;
             driftTargetAngle *= ((steering >= 0) ? 1 : -1);
             driftIsPositive = (driftTargetAngle >= 0);
 
-            driftOpenTime = driftTargetAngle * driftOpenTimeCoef;
-            driftCloseTime = driftTargetAngle * driftCloseTimeCoef;
+            driftOpenTime = Mathf.Abs(driftTargetAngle * driftOpenTimeCoef);
+            driftCloseTime = Mathf.Abs(driftTargetAngle * driftCloseTimeCoef);
+            driftPushOpen = 0;
+            driftPushClose = 0;
             StartCoroutine("DriftOpenLerp");
         }
         if (drifting)
         {
-            driftAngle += (driftPushOpen - driftPushClose + (steering * counterSteerCoef)) * Time.deltaTime;
-            eulers = new Vector3(0f, 0f, driftAngle);
-            chasis.transform.localEulerAngles = eulers;
+            if (!recovering)
+            {
+                driftAngle += (driftPushOpen - driftPushClose + (steering * counterSteerCoef)) * Time.deltaTime;
+                eulers = new Vector3(0f, 0f, driftAngle);
+                chasis.transform.localEulerAngles = eulers;
+
+                driftAngleText.text = "DriftAngle: " + Mathf.Round(driftAngle);
+                driftSliderScript.SetPosition(-driftAngle * (200 / maxDriftAngle));
+            }
         }
         else
         {
@@ -233,16 +243,21 @@ public class CarControllerScript : MonoBehaviour
     }
     IEnumerator DriftRecoverLerp()
     {
+        recovering = true;
         float startTime = Time.time;
         float t = Time.time;
         while ((t - startTime) <= driftRecoverTime)
         {
             driftAngle = Mathf.Lerp(driftAngle, 0f, ((t - startTime) / driftRecoverTime));
+            eulers = new Vector3(0f, 0f, driftAngle);
+            chasis.transform.localEulerAngles = eulers;
             t = Time.time;
             Debug.Log("RECOVER");
             yield return null;
         }
         driftAngle = 0f;
+        eulers = new Vector3(0f, 0f, driftAngle);
+        chasis.transform.localEulerAngles = eulers;
         Debug.Log("END");
         drifting = false;
     }
