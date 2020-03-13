@@ -66,10 +66,12 @@ public class CarControllerScript : MonoBehaviour
     public float chasisDriftAngleCoef = 1.5f;
     public float counterSteerCoef = 0.2f;
     float driftOpenTime;
+    public float FracTimeSpentOpening = 3f;
     public float driftOpenTimeCoef = 0.05f;
     float driftPushOpen;
     public float driftPushOpenCoef = 0.2f;
     float driftCloseTime;
+    public float FracTimeSpentClosing = 3f;
     public float driftCloseTimeCoef = 0.05f;
     float driftPushClose;
     public float driftPushCloseCoef = 0.2f;
@@ -175,10 +177,12 @@ public class CarControllerScript : MonoBehaviour
             driftIsPositive = (driftTargetAngle >= 0);
 
             driftOpenTime = Mathf.Abs(driftTargetAngle * driftOpenTimeCoef);
-            driftCloseTime = Mathf.Abs(driftTargetAngle * driftCloseTimeCoef);
+            driftCloseTime = Mathf.Abs((Mathf.Max((maxDriftAngle - driftTargetAngle), 1) / maxDriftAngle) * driftCloseTimeCoef);
             driftPushOpen = 0;
             driftPushClose = 0;
             StartCoroutine("DriftOpenLerp");
+
+            Debug.Log("Open Time: " + (Mathf.Round(driftOpenTime * 1000) / 1000) + "    Close time" + (Mathf.Round(driftCloseTime * 1000) / 1000));
         }
         if (drifting)
         {
@@ -205,9 +209,9 @@ public class CarControllerScript : MonoBehaviour
         float t = Time.time;
         while (((t - startTime) <= driftOpenTime))
         {
-            driftPushOpen = Mathf.SmoothStep(0f, (driftTargetAngle * driftPushOpenCoef), ((t - startTime) / driftOpenTime));
+            driftPushOpen = Mathf.SmoothStep(0f, (driftTargetAngle * driftPushOpenCoef), ((t - startTime) / (driftOpenTime / FracTimeSpentOpening)));
             t = Time.time;
-            Debug.Log("OPEN");
+            //Debug.Log("OPEN");
             yield return null;
         }
         driftPushOpen = (driftTargetAngle * driftPushOpenCoef);
@@ -223,14 +227,14 @@ public class CarControllerScript : MonoBehaviour
             float t = Time.time;
             while (((t - startTime) <= driftCloseTime))
             {
-                driftPushClose = Mathf.Lerp(driftPushClose, (driftPushClose + (driftTargetAngle * driftPushCloseCoef)), ((t - startTime) / driftCloseTime));
+                driftPushClose = Mathf.Lerp(driftPushClose, (driftPushClose + (driftTargetAngle * driftPushCloseCoef)), ((t - startTime) / (driftCloseTime / FracTimeSpentClosing)));
                 t = Time.time;
                 if ((Mathf.Abs(driftAngle) <= minDriftAngle) || (driftIsPositive != (driftAngle >= 0f)))
                 {
                     driftEnded = true;
                     break;
                 }
-                Debug.Log("CLOSE");
+                //Debug.Log("CLOSE");
                 yield return null;
             }
             if ((driftEnded || Mathf.Abs(driftAngle) <= minDriftAngle) || (driftIsPositive != (driftAngle >= 0f)))
@@ -252,13 +256,13 @@ public class CarControllerScript : MonoBehaviour
             eulers = new Vector3(0f, 0f, driftAngle);
             chasis.transform.localEulerAngles = eulers;
             t = Time.time;
-            Debug.Log("RECOVER");
+            //Debug.Log("RECOVER");
             yield return null;
         }
         driftAngle = 0f;
         eulers = new Vector3(0f, 0f, driftAngle);
         chasis.transform.localEulerAngles = eulers;
-        Debug.Log("END");
+        //Debug.Log("END");
         drifting = false;
     }
 
