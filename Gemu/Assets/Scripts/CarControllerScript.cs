@@ -64,6 +64,7 @@ public class CarControllerScript : MonoBehaviour
     public float driftTargetAngleVelocityCoef = 0.5f;
     public GameObject chasis;
     public float chasisDriftAngleCoef = 1.5f;
+    public float carRoatationDriftAngleCoef = 0.3f;
     public float counterSteerCoef = 0.2f;
     public float driftOpenLerpTime = 0.5f;
     float driftPushOpen;
@@ -76,12 +77,14 @@ public class CarControllerScript : MonoBehaviour
     bool driftEnded;
     bool recovering;
     public float driftRecoverTime = 0.2f;
+    public float driftDragCoef = 1f;
 
     public Text driftAngleText;
     public GameObject driftSlider;
     GaugeSliderScript driftSliderScript;
     public float maxDriftAngle = 45f;
     string state;
+    float driftStartTime;
 
     public float wrapAroundX = 43f;
     public float wrapAroundY = 25f;
@@ -135,6 +138,10 @@ public class CarControllerScript : MonoBehaviour
         accel = accel * accelCoef * Time.deltaTime;
         brake = brake * brakeCoef * Time.deltaTime;
         drag = ((v0 * v0) / 2) * dragCoef * Time.deltaTime;
+        if (drifting && (Mathf.Abs(driftAngle) >= maxDriftAngle))
+        {
+            drag += (Mathf.Abs(driftAngle) - maxDriftAngle) * driftDragCoef;
+        }
         brakePlusDrag = brake + drag;
         brakePlusDrag = Mathf.Min(brakePlusDrag, v0);
         v = v0 + accel - brakePlusDrag;
@@ -177,6 +184,7 @@ public class CarControllerScript : MonoBehaviour
             driftPushOpen = 0;
             driftPushClose = 0;
             StartCoroutine("DriftOpenLerp");
+            driftStartTime = Time.time;
         }
         if (drifting)
         {
@@ -189,7 +197,12 @@ public class CarControllerScript : MonoBehaviour
                 driftAngleText.text = "DriftAngle: " + Mathf.Round(driftAngle);
                 driftSliderScript.SetPosition(-driftAngle * (200 / maxDriftAngle));
             }
-            Debug.Log("Push Open: " + (Mathf.Round(driftPushOpen * 1000) / 1000) + "    Push Close:" + (Mathf.Round(driftPushClose * 1000) / 1000) + "    Push: " + (Mathf.Round((driftPushOpen - driftPushClose) * 1000) / 1000));
+
+            carRotation = driftAngle * carRoatationDriftAngleCoef * /*x */ Time.deltaTime;
+            transform.RotateAround(frontPivot.position, Vector3.forward, carRotation);
+
+            //Debug.Log("Push Open: " + (Mathf.Round(driftPushOpen * 1000) / 1000) + "    Push Close:" + (Mathf.Round(driftPushClose * 1000) / 1000) + "    Push: " + (Mathf.Round((driftPushOpen - driftPushClose) * 1000) / 1000));
+            Debug.Log("DriftTime: " + Mathf.Round((Time.time - driftStartTime) * 1000) / 1000);
         }
         else
         {
