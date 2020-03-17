@@ -180,7 +180,7 @@ public class CarControllerScript : MonoBehaviour
             driftTargetAngle *= ((steering >= 0) ? 1 : -1);
             driftIsPositive = (driftTargetAngle >= 0);
 
-            driftPushCloseRate = Mathf.Abs((Mathf.Max((maxDriftAngle - driftTargetAngle), 1) / maxDriftAngle) * driftPushCloseRateCoef);
+            driftPushCloseRate = Mathf.Abs((Mathf.Max((maxDriftAngle - Mathf.Abs(driftTargetAngle)), 1) / maxDriftAngle) * driftPushCloseRateCoef);
             driftPushOpen = 0;
             driftPushClose = 0;
             StartCoroutine("DriftOpenLerp");
@@ -202,11 +202,12 @@ public class CarControllerScript : MonoBehaviour
             transform.RotateAround(frontPivot.position, Vector3.forward, carRotation);
 
             //Debug.Log("Push Open: " + (Mathf.Round(driftPushOpen * 1000) / 1000) + "    Push Close:" + (Mathf.Round(driftPushClose * 1000) / 1000) + "    Push: " + (Mathf.Round((driftPushOpen - driftPushClose) * 1000) / 1000));
-            Debug.Log("DriftTime: " + Mathf.Round((Time.time - driftStartTime) * 1000) / 1000);
+            //Debug.Log("DriftTime: " + Mathf.Round((Time.time - driftStartTime) * 1000) / 1000);
+            //Debug.Log("DriftTargetAngle Sign: " + (driftTargetAngle >= 0) + "    DriftAngle Sign: " + (driftAngle >= 0) + "    DriftPushOpen Sign: " + (driftPushOpen >= 0) + "    DriftPushClose Sign: " + (driftPushClose >= 0) + "    Steering Sign: " + (steering >= 0));
         }
         else
         {
-            //carRotation = understeering * x * steeringCoef * Time.deltaTime;
+            carRotation = understeering * x * steeringCoef * Time.deltaTime;
             transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
         }
     }
@@ -232,7 +233,17 @@ public class CarControllerScript : MonoBehaviour
         driftPushClose = 0f;
         while (!((Mathf.Abs(driftAngle) <= minDriftAngle) || (driftIsPositive != (driftAngle >= 0f))))
         {
-            driftPushClose += driftPushCloseRate * Time.deltaTime;
+            driftPushClose += ((driftIsPositive) ? (driftPushCloseRate * Time.deltaTime) : (-driftPushCloseRate * Time.deltaTime));
+            if (v <= 3)
+            {
+                Debug.Log("Spun Out!!!");
+                eulers = new Vector3(0f, 0f, 0f);
+                chasis.transform.localEulerAngles = eulers;
+                eulers = new Vector3(0f, 0f, driftAngle);
+                transform.eulerAngles += eulers;
+                drifting = false;
+                yield break;
+            }
             yield return null;
         }
         StartCoroutine("DriftRecoverLerp");
