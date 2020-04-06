@@ -317,13 +317,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 134327381}
   m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1087526744}
   - {fileID: 344726784}
+  - {fileID: 519420032}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
 --- !u!61 &134327383
 BoxCollider2D:
@@ -363,7 +364,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d5687aef13f8054d85ebcab923c7681, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  accelCoef: 30
+  accelCoef: 50
   brakeCoef: 50
   dragCoef: 0.01
   vt: {fileID: 720400857}
@@ -372,7 +373,7 @@ MonoBehaviour:
   vSlider: {fileID: 2050682258}
   aSlider: {fileID: 236564781}
   dSlider: {fileID: 1098107831}
-  maxV: 77
+  maxV: 100
   maxA: 1
   maxD: 1
   maxSteeringAngle: 45
@@ -390,24 +391,24 @@ MonoBehaviour:
   ust: {fileID: 616509291}
   understeeringSlider: {fileID: 813950813}
   understeeringMagnitudeSlider: {fileID: 1832892860}
-  driftTargetAngleCoef: 1.5
-  driftTargetAngleSteeringCoef: 0.25
-  driftTargetAngleVelocityCoef: 0.75
+  driftTargetAngleCoef: 1
+  driftTargetAngleSteeringCoef: 1
+  driftTargetAngleVelocityCoef: 0.3
   chasis: {fileID: 344726783}
   chasisDriftAngleCoef: 1
-  carRoatationDriftAngleCoef: 1
+  carRoatationDriftAngleCoef: 2
   counterSteerCoef: 1.5
   driftOpenLerpTime: 0.15
-  driftPushOpenCoef: 1
-  driftPushCloseRateCoef: 2500
+  driftPushOpenCoef: 2
+  driftPushCloseRateCoef: 7000
   minDriftAngle: 5
   driftRecoverTime: 0.2
   driftDragCoef: 0.02
   driftAngleText: {fileID: 1806544854}
   driftSlider: {fileID: 1680876980}
   maxDriftAngle: 60
-  wrapAroundX: 43
-  wrapAroundY: 25
+  wrapAroundX: 2000
+  wrapAroundY: 2000
   sloMo: 0
 --- !u!1 &146476544
 GameObject:
@@ -1009,6 +1010,7 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420030}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1024,6 +1026,18 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
+--- !u!114 &519420030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a018234146b35ad43bf5f9b1cf21ad28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -1074,12 +1088,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: -100}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_Father: {fileID: 134327382}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &569906855
 GameObject:
@@ -1497,7 +1511,7 @@ Transform:
   - {fileID: 1619219170}
   - {fileID: 1829567722}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &786803780 stripped
 RectTransform:
@@ -1755,7 +1769,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &882517697
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1817,7 +1831,7 @@ Transform:
   m_LocalScale: {x: 2048, y: 2048, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &954556479
 GameObject:
@@ -3724,7 +3738,7 @@ RectTransform:
   - {fileID: 569906856}
   - {fileID: 1243502736}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

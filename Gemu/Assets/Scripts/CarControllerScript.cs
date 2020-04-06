@@ -60,8 +60,8 @@ public class CarControllerScript : MonoBehaviour
     float driftTargetAngle;
     float driftAngle;
     public float driftTargetAngleCoef = 1f;
-    public float driftTargetAngleSteeringCoef = 0.5f;
-    public float driftTargetAngleVelocityCoef = 0.5f;
+    public float driftTargetAngleSteeringCoef = 1.4f;
+    public float driftTargetAngleVelocityCoef = 0.3f;
     public GameObject chasis;
     public float chasisDriftAngleCoef = 1.5f;
     public float carRoatationDriftAngleCoef = 0.3f;
@@ -191,7 +191,7 @@ public class CarControllerScript : MonoBehaviour
             if (!recovering)
             {
                 driftAngle += (driftPushOpen - driftPushClose + (steering * counterSteerCoef)) * Time.deltaTime;
-                eulers = new Vector3(0f, 0f, driftAngle);
+                eulers = new Vector3(0f, 0f, driftAngle * chasisDriftAngleCoef);
                 chasis.transform.localEulerAngles = eulers;
 
                 driftAngleText.text = "DriftAngle: " + Mathf.Round(driftAngle);
