@@ -11,10 +11,14 @@ public class CarControllerScript : MonoBehaviour
     float v0;
     float x;
     float drag;
+    public float dragFromGrass = 50f;
     float brakePlusDrag;
     public float accelCoef = 60f;
     public float brakeCoef = 40f;
     public float dragCoef = 0.005f;
+    bool drivingOnGrass;
+    int numTiresInGrass;
+    public GameObject[] tiresForRaycasts;
 
     public Text vt;
     public Text at;
@@ -134,10 +138,26 @@ public class CarControllerScript : MonoBehaviour
         accel = Input.GetAxis("Gas");
         brake = Input.GetAxis("Brake");
 
+        drivingOnGrass = false;
+        numTiresInGrass = 4;
+        RaycastHit hit;
+        foreach (GameObject tire in tiresForRaycasts)
+        {
+            if (Physics.Raycast(tire.transform.position, Vector3.forward, out hit))
+            {
+                if (hit.transform.gameObject.tag == "Track") { numTiresInGrass--; }
+            }
+        }
+        if (numTiresInGrass >= 2) { drivingOnGrass = true; }
+
         v0 = v;
         accel = accel * accelCoef * Time.deltaTime;
         brake = brake * brakeCoef * Time.deltaTime;
         drag = ((v0 * v0) / 2) * dragCoef * Time.deltaTime;
+        if (drivingOnGrass) 
+        {
+            drag += dragFromGrass;
+        }
         if (drifting && (Mathf.Abs(driftAngle) >= maxDriftAngle))
         {
             drag += (Mathf.Abs(driftAngle) - maxDriftAngle) * driftDragCoef;
