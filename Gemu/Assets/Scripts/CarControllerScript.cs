@@ -156,12 +156,13 @@ public class CarControllerScript : MonoBehaviour
         drag = ((v0 * v0) / 2) * dragCoef * Time.deltaTime;
         if (drivingOnGrass) 
         {
-            drag += dragFromGrass;
+            drag *= dragFromGrass;
         }
         if (drifting && (Mathf.Abs(driftAngle) >= maxDriftAngle))
         {
             drag += (Mathf.Abs(driftAngle) - maxDriftAngle) * driftDragCoef;
         }
+        Debug.Log(drag);
         brakePlusDrag = brake + drag;
         brakePlusDrag = Mathf.Min(brakePlusDrag, v0);
         v = v0 + accel - brakePlusDrag;
@@ -196,7 +197,8 @@ public class CarControllerScript : MonoBehaviour
             drifting = true;
             recovering = false;
             driftAngle = 0;
-            driftTargetAngle = ((driftTargetAngleSteeringCoef * Mathf.Abs(steering)) + (driftTargetAngleVelocityCoef * v)) * driftTargetAngleCoef;
+            //driftTargetAngle = ((driftTargetAngleSteeringCoef * Mathf.Abs(steering)) + (driftTargetAngleVelocityCoef * v)) * driftTargetAngleCoef;
+            driftTargetAngle = ((driftTargetAngleSteeringCoef * Mathf.Abs(Mathf.Lerp(maxSteeringAngle, -maxSteeringAngle, Input.GetAxis("Horizontal")))) + (driftTargetAngleVelocityCoef * v)) * driftTargetAngleCoef;
             driftTargetAngle *= ((steering >= 0) ? 1 : -1);
             driftIsPositive = (driftTargetAngle >= 0);
 
