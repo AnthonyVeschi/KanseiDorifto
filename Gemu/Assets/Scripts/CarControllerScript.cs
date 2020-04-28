@@ -63,13 +63,13 @@ public class CarControllerScript : MonoBehaviour
     public GameObject chasis;
 
     public float DriftWindUpRate;
-    public float DriftWindDownRate;
     public float DriftAngle;
     public float DriftAngleSteeringCoef;
-    public bool DriftWindingUp;
+    public bool DriftWindingUp = false;
     public bool DriftWindingDown = false;
-    public bool DriftLeft;
-    public bool DriftRight;
+    public bool DriftLeft = false;
+    public bool DriftRight = false;
+    bool justEnded = false;
 
     public float wrapAroundX = 43f;
     public float wrapAroundY = 25f;
@@ -137,7 +137,7 @@ public class CarControllerScript : MonoBehaviour
         drag = ((v0 * v0) / 2) * dragCoef * Time.deltaTime;
         if (drivingOnGrass) 
         {
-            //drag *= dragFromGrass;
+            drag *= dragFromGrass;
         }
         //if (drifting && (Mathf.Abs(driftAngle) >= maxDriftAngle))
         //{
@@ -173,64 +173,46 @@ public class CarControllerScript : MonoBehaviour
         understeering = Mathf.Max(Mathf.Min(minUndersteerAngle, Mathf.Abs(steering)), Mathf.Abs(steering * understeerFrac * understeerCoef));
         understeering *= ((steering >= 0) ? 1 : -1);
 
-        if ((Input.GetButtonDown("DriftLeft") || Input.GetButtonDown("DriftRight")) && !DriftWindingDown)
+        if (((Input.GetButtonDown("DriftLeft") && DriftLeft) || (Input.GetButtonDown("DriftRight") && DriftRight)) && DriftWindingDown)
+        {
+            DriftWindingDown = false;
+            eulers = new Vector3(0f, 0f, 0f);
+            chasis.transform.localEulerAngles = eulers;
+            justEnded = true;
+        }
+        if (((Input.GetButtonDown("DriftLeft") && DriftLeft) || (Input.GetButtonDown("DriftRight") && DriftRight)) && DriftWindingUp)
+        {
+            DriftWindingUp = false;
+            DriftWindingDown = true;
+        }
+        if ((Input.GetButtonDown("DriftLeft") || Input.GetButtonDown("DriftRight")) && !DriftWindingDown && !DriftWindingUp && !justEnded)
         {
             DriftWindingUp = true;
             DriftAngle = 0f;
             if (Input.GetButtonDown("DriftLeft")) { DriftLeft = true; DriftRight = false; }
             if (Input.GetButtonDown("DriftRight")) { DriftLeft = false; DriftRight = true; }
         }
-        if (((Input.GetButton("DriftLeft") && DriftLeft) || (Input.GetButton("DriftRight") && DriftRight)) && DriftWindingUp)
-        {
-            if (Input.GetButton("DriftLeft")) { DriftAngle += DriftWindUpRate * Time.deltaTime; }
-            if (Input.GetButton("DriftRight")) { DriftAngle -= DriftWindUpRate * Time.deltaTime; }
-        }
-        if (((!Input.GetButton("DriftLeft") && DriftLeft) || (!Input.GetButton("DriftRight") && DriftRight)) && DriftWindingUp)
-        {
-            DriftWindingUp = false;
-            DriftWindingDown = true;
-        }
-
         if (DriftWindingUp)
         {
+            if (DriftLeft) { DriftAngle += DriftWindUpRate * Time.deltaTime; }
+            if (DriftRight) { DriftAngle -= DriftWindUpRate * Time.deltaTime; }
             eulers = new Vector3(0f, 0f, DriftAngle);
             chasis.transform.localEulerAngles = eulers;
         }
-        if (DriftWindingDown)
-        {
-            if (DriftLeft) { DriftAngle -= DriftWindDownRate * Time.deltaTime; }
-            if (DriftRight) { DriftAngle += DriftWindDownRate * Time.deltaTime; }
-
-            eulers = new Vector3(0f, 0f, DriftAngle);
-            chasis.transform.localEulerAngles = eulers;
-
-            if (DriftLeft)
-            {
-                if (DriftAngle <= 0) 
-                {
-                    eulers = new Vector3(0f, 0f, 0f);
-                    chasis.transform.localEulerAngles = eulers;
-                    DriftWindingDown = false;
-                }
-            }
-            if (DriftRight)
-            {
-                if (DriftAngle >= 0)
-                {
-                    eulers = new Vector3(0f, 0f, 0f);
-                    chasis.transform.localEulerAngles = eulers;
-                    DriftWindingDown = false;
-                }
-            }
-        }
-        if (!DriftWindingDown)
+        
+        if (!DriftWindingUp && !DriftWindingDown)
         {
             carRotation = understeering * x * steeringCoef * Time.deltaTime;
         }
+        if (DriftWindingUp)
+        {
+            carRotation = 0f;
+        }
         if (DriftWindingDown)
         {
-            carRotation = (understeering + (DriftAngle * DriftAngleSteeringCoef)) * x * steeringCoef * Time.deltaTime;
+            carRotation = DriftAngle * DriftAngleSteeringCoef * Time.deltaTime;
         }
+        if (justEnded) { justEnded = false; }
         
         transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
     }

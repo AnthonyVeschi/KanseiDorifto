@@ -398,10 +398,9 @@ MonoBehaviour:
   understeeringSlider: {fileID: 813950813}
   understeeringMagnitudeSlider: {fileID: 1832892860}
   chasis: {fileID: 344726783}
-  DriftWindUpRate: 35
-  DriftWindDownRate: 25
+  DriftWindUpRate: 150
   DriftAngle: 0
-  DriftAngleSteeringCoef: 0.1
+  DriftAngleSteeringCoef: 2
   DriftWindingUp: 0
   DriftWindingDown: 0
   DriftLeft: 0
@@ -1788,7 +1787,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &882517697
 SpriteRenderer:
   m_ObjectHideFlags: 0
