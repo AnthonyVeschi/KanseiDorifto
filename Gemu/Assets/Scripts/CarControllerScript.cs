@@ -65,6 +65,7 @@ public class CarControllerScript : MonoBehaviour
     public float DriftWindUpRate;
     public float DriftWindDownRate;
     public float DriftAngle;
+    public float DriftAngleSteeringCoef;
     public bool DriftWindingUp;
     public bool DriftWindingDown = false;
     public bool DriftLeft;
@@ -136,7 +137,7 @@ public class CarControllerScript : MonoBehaviour
         drag = ((v0 * v0) / 2) * dragCoef * Time.deltaTime;
         if (drivingOnGrass) 
         {
-            drag *= dragFromGrass;
+            //drag *= dragFromGrass;
         }
         //if (drifting && (Mathf.Abs(driftAngle) >= maxDriftAngle))
         //{
@@ -222,6 +223,16 @@ public class CarControllerScript : MonoBehaviour
                 }
             }
         }
+        if (!DriftWindingDown)
+        {
+            carRotation = understeering * x * steeringCoef * Time.deltaTime;
+        }
+        if (DriftWindingDown)
+        {
+            carRotation = (understeering + (DriftAngle * DriftAngleSteeringCoef)) * x * steeringCoef * Time.deltaTime;
+        }
+        
+        transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
     }
 
     void SteeringUI()
