@@ -397,22 +397,14 @@ MonoBehaviour:
   ust: {fileID: 616509291}
   understeeringSlider: {fileID: 813950813}
   understeeringMagnitudeSlider: {fileID: 1832892860}
-  driftTargetAngleCoef: 0.5
-  driftTargetAngleSteeringCoef: 1
-  driftTargetAngleVelocityCoef: 0.3
   chasis: {fileID: 344726783}
-  chasisDriftAngleCoef: 1
-  carRoatationDriftAngleCoef: 2
-  counterSteerCoef: 1.5
-  driftOpenLerpTime: 0.15
-  driftPushOpenCoef: 2
-  driftPushCloseRateCoef: 7000
-  minDriftAngle: 5
-  driftRecoverTime: 0.2
-  driftDragCoef: 0.02
-  driftAngleText: {fileID: 1806544854}
-  driftSlider: {fileID: 1680876980}
-  maxDriftAngle: 60
+  DriftWindUpRate: 35
+  DriftWindDownRate: 25
+  DriftAngle: 0
+  DriftWindingUp: 0
+  DriftWindingDown: 0
+  DriftLeft: 0
+  DriftRight: 0
   wrapAroundX: 2000
   wrapAroundY: 2000
   sloMo: 0

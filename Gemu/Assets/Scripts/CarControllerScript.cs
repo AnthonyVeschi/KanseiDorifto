@@ -60,35 +60,15 @@ public class CarControllerScript : MonoBehaviour
     GaugeSliderScript understeeringMagnitudeSliderScript;
     Vector3 eulers;
 
-    bool drifting;
-    float driftTargetAngle;
-    float driftAngle;
-    public float driftTargetAngleCoef = 1f;
-    public float driftTargetAngleSteeringCoef = 1.4f;
-    public float driftTargetAngleVelocityCoef = 0.3f;
     public GameObject chasis;
-    public float chasisDriftAngleCoef = 1.5f;
-    public float carRoatationDriftAngleCoef = 0.3f;
-    public float counterSteerCoef = 0.2f;
-    public float driftOpenLerpTime = 0.5f;
-    float driftPushOpen;
-    public float driftPushOpenCoef = 0.2f;
-    float driftPushClose;
-    float driftPushCloseRate;
-    public float driftPushCloseRateCoef = 1f;
-    bool driftIsPositive;
-    public float minDriftAngle = 5f;
-    bool driftEnded;
-    bool recovering;
-    public float driftRecoverTime = 0.2f;
-    public float driftDragCoef = 1f;
 
-    public Text driftAngleText;
-    public GameObject driftSlider;
-    GaugeSliderScript driftSliderScript;
-    public float maxDriftAngle = 45f;
-    string state;
-    float driftStartTime;
+    public float DriftWindUpRate;
+    public float DriftWindDownRate;
+    public float DriftAngle;
+    public bool DriftWindingUp;
+    public bool DriftWindingDown = false;
+    public bool DriftLeft;
+    public bool DriftRight;
 
     public float wrapAroundX = 43f;
     public float wrapAroundY = 25f;
@@ -113,9 +93,9 @@ public class CarControllerScript : MonoBehaviour
         understeeringSliderScript = understeeringSlider.GetComponent<GaugeSliderScript>();
         understeeringMagnitudeSliderScript = understeeringMagnitudeSlider.GetComponent<GaugeSliderScript>();
 
-        driftSliderScript = driftSlider.GetComponent<GaugeSliderScript>();
+        //driftSliderScript = driftSlider.GetComponent<GaugeSliderScript>();
 
-        drifting = false;
+        //drifting = false;
     }
 
     void Update()
@@ -158,11 +138,11 @@ public class CarControllerScript : MonoBehaviour
         {
             drag *= dragFromGrass;
         }
-        if (drifting && (Mathf.Abs(driftAngle) >= maxDriftAngle))
-        {
-            drag += (Mathf.Abs(driftAngle) - maxDriftAngle) * driftDragCoef;
-        }
-        Debug.Log(drag);
+        //if (drifting && (Mathf.Abs(driftAngle) >= maxDriftAngle))
+        //{
+        //    drag += (Mathf.Abs(driftAngle) - maxDriftAngle) * driftDragCoef;
+        //}
+        //Debug.Log(drag);
         brakePlusDrag = brake + drag;
         brakePlusDrag = Mathf.Min(brakePlusDrag, v0);
         v = v0 + accel - brakePlusDrag;
@@ -191,104 +171,57 @@ public class CarControllerScript : MonoBehaviour
         understeerFrac = 1f - (understeerDiffV / maxUndersteerDiffV);
         understeering = Mathf.Max(Mathf.Min(minUndersteerAngle, Mathf.Abs(steering)), Mathf.Abs(steering * understeerFrac * understeerCoef));
         understeering *= ((steering >= 0) ? 1 : -1);
-        
-        if (Input.GetButtonDown("Drift") && !drifting)
-        {
-            drifting = true;
-            recovering = false;
-            driftAngle = 0;
-            //driftTargetAngle = ((driftTargetAngleSteeringCoef * Mathf.Abs(steering)) + (driftTargetAngleVelocityCoef * v)) * driftTargetAngleCoef;
-            driftTargetAngle = ((driftTargetAngleSteeringCoef * Mathf.Abs(Mathf.Lerp(maxSteeringAngle, -maxSteeringAngle, Input.GetAxis("Horizontal")))) + (driftTargetAngleVelocityCoef * v)) * driftTargetAngleCoef;
-            driftTargetAngle *= ((steering >= 0) ? 1 : -1);
-            driftIsPositive = (driftTargetAngle >= 0);
 
-            driftPushCloseRate = Mathf.Abs((Mathf.Max((maxDriftAngle - Mathf.Abs(driftTargetAngle)), 1) / maxDriftAngle) * driftPushCloseRateCoef);
-            driftPushOpen = 0;
-            driftPushClose = 0;
-            StartCoroutine("DriftOpenLerp");
-            driftStartTime = Time.time;
-        }
-        if (drifting)
+        if ((Input.GetButtonDown("DriftLeft") || Input.GetButtonDown("DriftRight")) && !DriftWindingDown)
         {
-            if (!recovering)
-            {
-                driftAngle += (driftPushOpen - driftPushClose + (steering * counterSteerCoef)) * Time.deltaTime;
-                eulers = new Vector3(0f, 0f, driftAngle * chasisDriftAngleCoef);
-                chasis.transform.localEulerAngles = eulers;
+            DriftWindingUp = true;
+            DriftAngle = 0f;
+            if (Input.GetButtonDown("DriftLeft")) { DriftLeft = true; DriftRight = false; }
+            if (Input.GetButtonDown("DriftRight")) { DriftLeft = false; DriftRight = true; }
+        }
+        if (((Input.GetButton("DriftLeft") && DriftLeft) || (Input.GetButton("DriftRight") && DriftRight)) && DriftWindingUp)
+        {
+            if (Input.GetButton("DriftLeft")) { DriftAngle += DriftWindUpRate * Time.deltaTime; }
+            if (Input.GetButton("DriftRight")) { DriftAngle -= DriftWindUpRate * Time.deltaTime; }
+        }
+        if (((!Input.GetButton("DriftLeft") && DriftLeft) || (!Input.GetButton("DriftRight") && DriftRight)) && DriftWindingUp)
+        {
+            DriftWindingUp = false;
+            DriftWindingDown = true;
+        }
 
-                driftAngleText.text = "DriftAngle: " + Mathf.Round(driftAngle);
-                driftSliderScript.SetPosition(-driftAngle * (200 / maxDriftAngle));
-            }
-
-            carRotation = driftAngle * carRoatationDriftAngleCoef * /*x */ Time.deltaTime;
-            transform.RotateAround(frontPivot.position, Vector3.forward, carRotation);
-
-            //Debug.Log("Push Open: " + (Mathf.Round(driftPushOpen * 1000) / 1000) + "    Push Close:" + (Mathf.Round(driftPushClose * 1000) / 1000) + "    Push: " + (Mathf.Round((driftPushOpen - driftPushClose) * 1000) / 1000));
-            //Debug.Log("DriftTime: " + Mathf.Round((Time.time - driftStartTime) * 1000) / 1000);
-            //Debug.Log("DriftTargetAngle Sign: " + (driftTargetAngle >= 0) + "    DriftAngle Sign: " + (driftAngle >= 0) + "    DriftPushOpen Sign: " + (driftPushOpen >= 0) + "    DriftPushClose Sign: " + (driftPushClose >= 0) + "    Steering Sign: " + (steering >= 0));
-        }
-        else
+        if (DriftWindingUp)
         {
-            carRotation = understeering * x * steeringCoef * Time.deltaTime;
-            transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
-        }
-    }
-
-    IEnumerator DriftOpenLerp()
-    {
-        state = "OPEN";
-        float startTime = Time.time;
-        float t = Time.time;
-        while (((t - startTime) <= driftOpenLerpTime))
-        {
-            driftPushOpen = Mathf.SmoothStep(0f, (driftTargetAngle * driftPushOpenCoef), ((t - startTime) / driftOpenLerpTime));
-            t = Time.time;
-            yield return null;
-        }
-        driftPushOpen = (driftTargetAngle * driftPushOpenCoef);
-        driftEnded = false;
-        StartCoroutine("DriftClose");
-    }
-    IEnumerator DriftClose()
-    {
-        state = "CLOSE";
-        driftPushClose = 0f;
-        while (!((Mathf.Abs(driftAngle) <= minDriftAngle) || (driftIsPositive != (driftAngle >= 0f))))
-        {
-            driftPushClose += ((driftIsPositive) ? (driftPushCloseRate * Time.deltaTime) : (-driftPushCloseRate * Time.deltaTime));
-            if (v <= 3)
-            {
-                Debug.Log("Spun Out!!!");
-                eulers = new Vector3(0f, 0f, 0f);
-                chasis.transform.localEulerAngles = eulers;
-                eulers = new Vector3(0f, 0f, driftAngle);
-                transform.eulerAngles += eulers;
-                drifting = false;
-                yield break;
-            }
-            yield return null;
-        }
-        StartCoroutine("DriftRecoverLerp");
-    }
-    IEnumerator DriftRecoverLerp()
-    {
-        state = "RECOVER";
-        recovering = true;
-        float startTime = Time.time;
-        float t = Time.time;
-        while ((t - startTime) <= driftRecoverTime)
-        {
-            driftAngle = Mathf.Lerp(driftAngle, 0f, ((t - startTime) / driftRecoverTime));
-            eulers = new Vector3(0f, 0f, driftAngle);
+            eulers = new Vector3(0f, 0f, DriftAngle);
             chasis.transform.localEulerAngles = eulers;
-            t = Time.time;
-            yield return null;
         }
-        state = "END";
-        driftAngle = 0f;
-        eulers = new Vector3(0f, 0f, driftAngle);
-        chasis.transform.localEulerAngles = eulers;
-        drifting = false;
+        if (DriftWindingDown)
+        {
+            if (DriftLeft) { DriftAngle -= DriftWindDownRate * Time.deltaTime; }
+            if (DriftRight) { DriftAngle += DriftWindDownRate * Time.deltaTime; }
+
+            eulers = new Vector3(0f, 0f, DriftAngle);
+            chasis.transform.localEulerAngles = eulers;
+
+            if (DriftLeft)
+            {
+                if (DriftAngle <= 0) 
+                {
+                    eulers = new Vector3(0f, 0f, 0f);
+                    chasis.transform.localEulerAngles = eulers;
+                    DriftWindingDown = false;
+                }
+            }
+            if (DriftRight)
+            {
+                if (DriftAngle >= 0)
+                {
+                    eulers = new Vector3(0f, 0f, 0f);
+                    chasis.transform.localEulerAngles = eulers;
+                    DriftWindingDown = false;
+                }
+            }
+        }
     }
 
     void SteeringUI()
