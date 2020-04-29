@@ -118,6 +118,7 @@ public class CarControllerScript : MonoBehaviour
     void Accel()
     {
         accel = Input.GetAxis("Gas");
+        if (Time.time <= 3) { accel = 0; }
         brake = Input.GetAxis("Brake");
 
         drivingOnGrass = false;
@@ -149,6 +150,7 @@ public class CarControllerScript : MonoBehaviour
         brakePlusDrag = Mathf.Min(brakePlusDrag, v0);
         v = v0 + accel - brakePlusDrag;
         x = v * Time.deltaTime;
+        
         transform.Translate(Vector3.up * x);
 
         //if (accel > 0) { if (!audioSources[0].isPlaying) { audioSources[0].Play(); } } else { audioSources[0].Stop(); }
