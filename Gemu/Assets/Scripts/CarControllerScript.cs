@@ -77,6 +77,8 @@ public class CarControllerScript : MonoBehaviour
 
     public bool sloMo;
 
+    public AudioSource[] audioSources;
+
     void Start()
     {
         if (sloMo) { Time.timeScale = 0.2f; }
@@ -95,9 +97,7 @@ public class CarControllerScript : MonoBehaviour
         understeeringSliderScript = understeeringSlider.GetComponent<GaugeSliderScript>();
         understeeringMagnitudeSliderScript = understeeringMagnitudeSlider.GetComponent<GaugeSliderScript>();
 
-        //driftSliderScript = driftSlider.GetComponent<GaugeSliderScript>();
-
-        //drifting = false;
+        audioSources = gameObject.GetComponents<AudioSource>();
     }
 
     void Update()
@@ -150,6 +150,11 @@ public class CarControllerScript : MonoBehaviour
         v = v0 + accel - brakePlusDrag;
         x = v * Time.deltaTime;
         transform.Translate(Vector3.up * x);
+
+        //if (accel > 0) { if (!audioSources[0].isPlaying) { audioSources[0].Play(); } } else { audioSources[0].Stop(); }
+        //if (brake > 0 && x > 0) { if (!audioSources[1].isPlaying) { audioSources[1].Play(); } } else { audioSources[1].Stop(); }
+        if (x > 0) { if (!audioSources[2].isPlaying) { audioSources[2].Play(); } } else { audioSources[2].Stop(); }
+        audioSources[2].volume = v / maxV;
     }
 
     void AccelUI()
@@ -180,11 +185,15 @@ public class CarControllerScript : MonoBehaviour
             eulers = new Vector3(0f, 0f, 0f);
             chasis.transform.localEulerAngles = eulers;
             justEnded = true;
+
+            audioSources[3].Stop();
         }
         if (((Input.GetButtonDown("DriftLeft") && DriftLeft) || (Input.GetButtonDown("DriftRight") && DriftRight)) && DriftWindingUp)
         {
             DriftWindingUp = false;
             DriftWindingDown = true;
+
+            audioSources[3].Play();
         }
         if ((Input.GetButtonDown("DriftLeft") || Input.GetButtonDown("DriftRight")) && !DriftWindingDown && !DriftWindingUp && !justEnded)
         {
