@@ -365,7 +365,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dragFromGrass: 12
-  accelCoef: 50
+  accelCoef: 70
   brakeCoef: 50
   dragCoef: 0.01
   tiresForRaycasts:
@@ -379,7 +379,7 @@ MonoBehaviour:
   vSlider: {fileID: 2050682258}
   aSlider: {fileID: 236564781}
   dSlider: {fileID: 1098107831}
-  maxV: 100
+  maxV: 118
   maxA: 1
   maxD: 1
   maxSteeringAngle: 45
@@ -1604,17 +1604,17 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: d5f8dcdd4f0fc73478a70e287c787121,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 17
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d5f8dcdd4f0fc73478a70e287c787121,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 17
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d5f8dcdd4f0fc73478a70e287c787121,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 17
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: -927199367670048503, guid: d5f8dcdd4f0fc73478a70e287c787121,
         type: 3}

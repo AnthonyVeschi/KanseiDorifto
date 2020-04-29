@@ -138,7 +138,7 @@ public class CarControllerScript : MonoBehaviour
         drag = ((v0 * v0) / 2) * dragCoef * Time.deltaTime;
         if (drivingOnGrass) 
         {
-            //drag *= dragFromGrass;
+            drag *= dragFromGrass;
         }
         //if (drifting && (Mathf.Abs(driftAngle) >= maxDriftAngle))
         //{
