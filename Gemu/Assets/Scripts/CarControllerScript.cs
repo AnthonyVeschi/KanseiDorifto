@@ -65,6 +65,7 @@ public class CarControllerScript : MonoBehaviour
     public float DriftWindUpRate;
     public float DriftAngle;
     public float DriftAngleSteeringCoef;
+    public float DriftCounterSteerCoef;
     public bool DriftWindingUp = false;
     public bool DriftWindingDown = false;
     public bool DriftLeft = false;
@@ -137,7 +138,7 @@ public class CarControllerScript : MonoBehaviour
         drag = ((v0 * v0) / 2) * dragCoef * Time.deltaTime;
         if (drivingOnGrass) 
         {
-            drag *= dragFromGrass;
+            //drag *= dragFromGrass;
         }
         //if (drifting && (Mathf.Abs(driftAngle) >= maxDriftAngle))
         //{
@@ -210,7 +211,8 @@ public class CarControllerScript : MonoBehaviour
         }
         if (DriftWindingDown)
         {
-            carRotation = DriftAngle * DriftAngleSteeringCoef * Time.deltaTime;
+            //carRotation = DriftAngle * DriftAngleSteeringCoef * Time.deltaTime;
+            carRotation = ((DriftAngle * DriftAngleSteeringCoef) + (steering * DriftCounterSteerCoef)) * Time.deltaTime;
         }
         if (justEnded) { justEnded = false; }
         
