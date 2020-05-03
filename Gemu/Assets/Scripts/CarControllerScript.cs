@@ -65,12 +65,14 @@ public class CarControllerScript : MonoBehaviour
     public float DriftWindUpRate;
     public float DriftAngle;
     public float DriftAngleSteeringCoef;
+    public float DriftMaxAngle = 135;
     public float DriftCounterSteerCoef;
     public bool DriftWindingUp = false;
     public bool DriftWindingDown = false;
     public bool DriftLeft = false;
     public bool DriftRight = false;
     bool justEnded = false;
+    ParticleSystem particles;
 
     public float wrapAroundX = 43f;
     public float wrapAroundY = 25f;
@@ -98,6 +100,8 @@ public class CarControllerScript : MonoBehaviour
         understeeringMagnitudeSliderScript = understeeringMagnitudeSlider.GetComponent<GaugeSliderScript>();
 
         audioSources = gameObject.GetComponents<AudioSource>();
+
+        particles = gameObject.GetComponent<ParticleSystem>();
     }
 
     void Update()
@@ -184,16 +188,23 @@ public class CarControllerScript : MonoBehaviour
         if (((Input.GetButtonDown("DriftLeft") && DriftLeft) || (Input.GetButtonDown("DriftRight") && DriftRight)) && DriftWindingDown)
         {
             DriftWindingDown = false;
-            eulers = new Vector3(0f, 0f, 0f);
-            chasis.transform.localEulerAngles = eulers;
+            StartCoroutine("DriftEndLerp");
+            particles.Stop();
             justEnded = true;
 
             audioSources[3].Stop();
+        }
+        if (((Input.GetButtonDown("DriftLeft") && DriftRight) || (Input.GetButtonDown("DriftRight") && DriftLeft)) && DriftWindingDown)
+        {
+            DriftLeft = !DriftLeft;
+            DriftRight = !DriftRight;
+            StartCoroutine("InertiaDriftLerp");
         }
         if (((Input.GetButtonDown("DriftLeft") && DriftLeft) || (Input.GetButtonDown("DriftRight") && DriftRight)) && DriftWindingUp)
         {
             DriftWindingUp = false;
             DriftWindingDown = true;
+            particles.Play();
 
             audioSources[3].Play();
         }
@@ -210,6 +221,13 @@ public class CarControllerScript : MonoBehaviour
             if (DriftRight) { DriftAngle -= DriftWindUpRate * Time.deltaTime; }
             eulers = new Vector3(0f, 0f, DriftAngle);
             chasis.transform.localEulerAngles = eulers;
+
+            if (Mathf.Abs(DriftAngle) >= DriftMaxAngle)
+            {
+                DriftWindingUp = false;
+                DriftWindingDown = true;
+                particles.Play();
+            }
         }
         
         if (!DriftWindingUp && !DriftWindingDown)
@@ -228,6 +246,39 @@ public class CarControllerScript : MonoBehaviour
         if (justEnded) { justEnded = false; }
         
         transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
+    }
+
+    IEnumerator DriftEndLerp()
+    {
+        float startTime = Time.time;
+        float totalTime = 0.15f;
+        float myAngle;
+        while (Time.time - startTime < totalTime)
+        {
+            myAngle = Mathf.Lerp(DriftAngle, 0, (Time.time - startTime) / totalTime);
+            eulers = new Vector3(0f, 0f, myAngle);
+            chasis.transform.localEulerAngles = eulers;
+            if (DriftWindingUp) { yield break; }
+            yield return null;
+        }
+        eulers = new Vector3(0f, 0f, 0f);
+        chasis.transform.localEulerAngles = eulers;
+    }
+
+    IEnumerator InertiaDriftLerp()
+    {
+        float startTime = Time.time;
+        float totalTime = 0.2f;
+        float initialAngle = DriftAngle;
+        while (Time.time - startTime < totalTime)
+        {
+            DriftAngle = Mathf.Lerp(initialAngle, -initialAngle, (Time.time - startTime) / totalTime);
+            eulers = new Vector3(0f, 0f, DriftAngle);
+            chasis.transform.localEulerAngles = eulers;
+            if (!DriftWindingDown) { yield break; }
+            yield return null;
+        }
+        DriftAngle = -initialAngle;
     }
 
     void SteeringUI()
