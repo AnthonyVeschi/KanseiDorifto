@@ -33,6 +33,8 @@ public class SteeringManagerScript : MonoBehaviour
     public GameObject Tires;
     TireRotateScript tireScript;
 
+    public int player;
+
     public float nonLinearPower = 2f;
 
     void Start()
@@ -50,7 +52,9 @@ public class SteeringManagerScript : MonoBehaviour
 
     void Update()
     {
-        x = Input.GetAxis("Horizontal");
+        if (player == 1) { x = Input.GetAxis("Horizontal1"); }
+        else { x = Input.GetAxis("Horizontal2"); }
+        Debug.Log(x);
         Raw();
         NonLinear();
         if (!steeringIsLinear) { x = GetNonLinearX(x); }

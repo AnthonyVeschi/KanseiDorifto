@@ -81,6 +81,8 @@ public class CarControllerScript : MonoBehaviour
 
     public AudioSource[] audioSources;
 
+    public int player;
+
     void Start()
     {
         if (sloMo) { Time.timeScale = 0.2f; }
@@ -114,16 +116,19 @@ public class CarControllerScript : MonoBehaviour
 
         Accel();
         AccelUI();
-        Steering();
+        if (player == 1) { Steering1(); }
+        else { Steering2(); }
         SteeringUI();
         WrapAround();
     }
 
     void Accel()
     {
-        accel = Input.GetAxis("Gas");
+        if (player == 1) { accel = Input.GetAxis("Gas1"); }
+        else { accel = Input.GetAxis("Gas2"); }
         if (Time.time <= 3) { accel = 0; }
-        brake = Input.GetAxis("Brake");
+        if (player == 1) { brake = Input.GetAxis("Brake1"); }
+        else { brake = Input.GetAxis("Brake1"); }
 
         drivingOnGrass = false;
         numTiresInGrass = 4;
@@ -173,7 +178,7 @@ public class CarControllerScript : MonoBehaviour
         dSliderScript.SetPosition((drag / maxD) * 400);
     }
 
-    void Steering()
+    void Steering1()
     {
         steering = steeringManagerScript.GetSteering();
         steering = (steering + 1) / 2;
@@ -185,35 +190,33 @@ public class CarControllerScript : MonoBehaviour
         understeering = Mathf.Max(Mathf.Min(minUndersteerAngle, Mathf.Abs(steering)), Mathf.Abs(steering * understeerFrac * understeerCoef));
         understeering *= ((steering >= 0) ? 1 : -1);
 
-        if (((Input.GetButtonDown("DriftLeft") && DriftLeft) || (Input.GetButtonDown("DriftRight") && DriftRight)) && DriftWindingDown)
+        if (((Input.GetButtonDown("DriftLeft1") && DriftLeft) || (Input.GetButtonDown("DriftRight1") && DriftRight)) && DriftWindingDown)
         {
             DriftWindingDown = false;
             StartCoroutine("DriftEndLerp");
             particles.Stop();
             justEnded = true;
-
             audioSources[3].Stop();
         }
-        if (((Input.GetButtonDown("DriftLeft") && DriftRight) || (Input.GetButtonDown("DriftRight") && DriftLeft)) && DriftWindingDown)
+        if (((Input.GetButtonDown("DriftLeft1") && DriftRight) || (Input.GetButtonDown("DriftRight1") && DriftLeft)) && DriftWindingDown)
         {
             DriftLeft = !DriftLeft;
             DriftRight = !DriftRight;
             StartCoroutine("InertiaDriftLerp");
         }
-        if (((Input.GetButtonDown("DriftLeft") && DriftLeft) || (Input.GetButtonDown("DriftRight") && DriftRight)) && DriftWindingUp)
+        if (((Input.GetButtonDown("DriftLeft1") && DriftLeft) || (Input.GetButtonDown("DriftRight1") && DriftRight)) && DriftWindingUp)
         {
             DriftWindingUp = false;
             DriftWindingDown = true;
             particles.Play();
-
             audioSources[3].Play();
         }
-        if ((Input.GetButtonDown("DriftLeft") || Input.GetButtonDown("DriftRight")) && !DriftWindingDown && !DriftWindingUp && !justEnded)
+        if ((Input.GetButtonDown("DriftLeft1") || Input.GetButtonDown("DriftRight1")) && !DriftWindingDown && !DriftWindingUp && !justEnded)
         {
             DriftWindingUp = true;
             DriftAngle = 0f;
-            if (Input.GetButtonDown("DriftLeft")) { DriftLeft = true; DriftRight = false; }
-            if (Input.GetButtonDown("DriftRight")) { DriftLeft = false; DriftRight = true; }
+            if (Input.GetButtonDown("DriftLeft1")) { DriftLeft = true; DriftRight = false; }
+            if (Input.GetButtonDown("DriftRight1")) { DriftLeft = false; DriftRight = true; }
         }
         if (DriftWindingUp)
         {
@@ -227,6 +230,7 @@ public class CarControllerScript : MonoBehaviour
                 DriftWindingUp = false;
                 DriftWindingDown = true;
                 particles.Play();
+                audioSources[3].Play();
             }
         }
         
@@ -245,6 +249,80 @@ public class CarControllerScript : MonoBehaviour
         }
         if (justEnded) { justEnded = false; }
         
+        transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
+    }
+
+    void Steering2()
+    {
+        steering = steeringManagerScript.GetSteering();
+        steering = (steering + 1) / 2;
+        steering = Mathf.Lerp(maxSteeringAngle, -maxSteeringAngle, steering);
+
+        maxUndersteerDiffV = maxV - minUndersteerV;
+        understeerDiffV = Mathf.Max(0, (v - minUndersteerV));
+        understeerFrac = 1f - (understeerDiffV / maxUndersteerDiffV);
+        understeering = Mathf.Max(Mathf.Min(minUndersteerAngle, Mathf.Abs(steering)), Mathf.Abs(steering * understeerFrac * understeerCoef));
+        understeering *= ((steering >= 0) ? 1 : -1);
+
+        if (((Input.GetButtonDown("DriftLeft2") && DriftLeft) || (Input.GetButtonDown("DriftRight2") && DriftRight)) && DriftWindingDown)
+        {
+            DriftWindingDown = false;
+            StartCoroutine("DriftEndLerp");
+            particles.Stop();
+            justEnded = true;
+            audioSources[3].Stop();
+        }
+        if (((Input.GetButtonDown("DriftLeft2") && DriftRight) || (Input.GetButtonDown("DriftRight2") && DriftLeft)) && DriftWindingDown)
+        {
+            DriftLeft = !DriftLeft;
+            DriftRight = !DriftRight;
+            StartCoroutine("InertiaDriftLerp");
+        }
+        if (((Input.GetButtonDown("DriftLeft2") && DriftLeft) || (Input.GetButtonDown("DriftRight2") && DriftRight)) && DriftWindingUp)
+        {
+            DriftWindingUp = false;
+            DriftWindingDown = true;
+            particles.Play();
+            audioSources[3].Play();
+        }
+        if ((Input.GetButtonDown("DriftLeft2") || Input.GetButtonDown("DriftRight2")) && !DriftWindingDown && !DriftWindingUp && !justEnded)
+        {
+            DriftWindingUp = true;
+            DriftAngle = 0f;
+            if (Input.GetButtonDown("DriftLeft2")) { DriftLeft = true; DriftRight = false; }
+            if (Input.GetButtonDown("DriftRight2")) { DriftLeft = false; DriftRight = true; }
+        }
+        if (DriftWindingUp)
+        {
+            if (DriftLeft) { DriftAngle += DriftWindUpRate * Time.deltaTime; }
+            if (DriftRight) { DriftAngle -= DriftWindUpRate * Time.deltaTime; }
+            eulers = new Vector3(0f, 0f, DriftAngle);
+            chasis.transform.localEulerAngles = eulers;
+
+            if (Mathf.Abs(DriftAngle) >= DriftMaxAngle)
+            {
+                DriftWindingUp = false;
+                DriftWindingDown = true;
+                particles.Play();
+                audioSources[3].Play();
+            }
+        }
+
+        if (!DriftWindingUp && !DriftWindingDown)
+        {
+            carRotation = understeering * x * steeringCoef * Time.deltaTime;
+        }
+        if (DriftWindingUp)
+        {
+            carRotation = 0f;
+        }
+        if (DriftWindingDown)
+        {
+            //carRotation = DriftAngle * DriftAngleSteeringCoef * Time.deltaTime;
+            carRotation = ((DriftAngle * DriftAngleSteeringCoef) + (steering * DriftCounterSteerCoef)) * Time.deltaTime;
+        }
+        if (justEnded) { justEnded = false; }
+
         transform.RotateAround(rearPivot.position, Vector3.forward, carRotation);
     }
 

@@ -16,7 +16,7 @@ public class BrakeManager : MonoBehaviour
 
     void Update()
     {
-        b = Input.GetAxis("Brake");
+        b = Input.GetAxis("Brake1");
         b *= 400;
         brakeGaugeScript.SetPosition(b);
     }

@@ -16,7 +16,7 @@ public class AccelerationManager : MonoBehaviour
 
     void Update()
     {
-        x = Input.GetAxis("Gas");
+        x = Input.GetAxis("Gas1");
         x *= 400;
         gasGaugeScript.SetPosition(x);
     }
