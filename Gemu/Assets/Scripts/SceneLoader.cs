@@ -55,6 +55,7 @@ public class SceneLoader: MonoBehaviour
     public void Track()
     {
         if (trackNum == 1) { trackNum = 2; }
+        else if (trackNum == 2) { trackNum = 3; }
         else { trackNum = 1; }
         tt.text = "Track: " + trackNum;
 

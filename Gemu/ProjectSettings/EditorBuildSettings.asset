@@ -21,9 +21,15 @@ EditorBuildSettings:
     path: Assets/Scenes/MultiTrack2.unity
     guid: f62dc338f8e0db24f8a329f15c21512c
   - enabled: 1
+    path: Assets/Scenes/MultiTrack3.unity
+    guid: c61e78cc534f16b4581f019c483c02df
+  - enabled: 1
     path: Assets/Scenes/SingleTrack1.unity
     guid: 776ee78e7c751294d8db9a021f4bcbe3
   - enabled: 1
     path: Assets/Scenes/SingleTrack2.unity
     guid: 79d1185e1ba696045ad095ef0080995d
+  - enabled: 1
+    path: Assets/Scenes/SingleTrack3.unity
+    guid: 267089953d5656c468389672ece58b31
   m_configObjects: {}

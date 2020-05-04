@@ -32,9 +32,13 @@ public class StartButton : MonoBehaviour
             {
                 SceneManager.LoadScene("SingleTrack1");
             }
-            else
+            else if (t == 2)
             {
                 SceneManager.LoadScene("SingleTrack2");
+            }
+            else
+            {
+                SceneManager.LoadScene("SingleTrack3");
             }
         }
         else
@@ -43,9 +47,13 @@ public class StartButton : MonoBehaviour
             {
                 SceneManager.LoadScene("MultiTrack1");
             }
-            else
+            else if (t == 2)
             {
                 SceneManager.LoadScene("MultiTrack2");
+            }
+            else
+            {
+                SceneManager.LoadScene("MultiTrack3");
             }
         }
     }
