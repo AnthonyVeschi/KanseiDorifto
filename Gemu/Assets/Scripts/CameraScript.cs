@@ -8,4 +8,9 @@ public class CameraScript : MonoBehaviour
     {
         transform.eulerAngles = new Vector3(0f, 0f, 0f);
     }
+
+    void LateUpdate()
+    {
+        transform.eulerAngles = new Vector3(0f, 0f, 0f);
+    }
 }

@@ -18,7 +18,7 @@ public class WinText : MonoBehaviour
     {
         if (!set)
         {
-            t.text = "PLAYER " + player + "WINS!!!";
+            t.text = "PLAYER " + player + " WINS!!!";
             set = true;
         }
     }
