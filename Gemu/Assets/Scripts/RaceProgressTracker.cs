@@ -10,9 +10,15 @@ public class RaceProgressTracker : MonoBehaviour
     public GameObject textObj;
     public TimeText textScript;
 
+    public GameObject winTextObj;
+    public WinText winTextScript;
+
+    public int player;
+
     void Start()
     {
         textScript = textObj.GetComponent<TimeText>();
+        winTextScript = winTextObj.GetComponent<WinText>();
     }
 
     void OnTriggerEnter2D(Collider2D col)
@@ -22,7 +28,11 @@ public class RaceProgressTracker : MonoBehaviour
         if (col.gameObject.tag == "three" && tracker == 2) { tracker++; }
         if (col.gameObject.tag == "four" && tracker == 3) { tracker++; }
         if (col.gameObject.tag == "finish" && tracker == 4) { tracker = 0; laps++; }
-        if (col.gameObject.tag == "finish" && laps == 3) { textScript.Finish(); }
+        if (col.gameObject.tag == "finish" && laps == 3) 
+        {
+            textScript.Finish();
+            winTextScript.SetText(player);
+        }
 
     }
 }

@@ -54,7 +54,7 @@ public class SteeringManagerScript : MonoBehaviour
     {
         if (player == 1) { x = Input.GetAxis("Horizontal1"); }
         else { x = Input.GetAxis("Horizontal2"); }
-        Debug.Log(x);
+        Debug.Log("x: " + x);
         Raw();
         NonLinear();
         if (!steeringIsLinear) { x = GetNonLinearX(x); }

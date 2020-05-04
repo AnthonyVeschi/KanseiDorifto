@@ -184,6 +184,8 @@ public class CarControllerScript : MonoBehaviour
         steering = (steering + 1) / 2;
         steering = Mathf.Lerp(maxSteeringAngle, -maxSteeringAngle, steering);
 
+        Debug.Log("steering: " + steering);
+
         maxUndersteerDiffV = maxV - minUndersteerV;
         understeerDiffV = Mathf.Max(0, (v - minUndersteerV));
         understeerFrac = 1f - (understeerDiffV / maxUndersteerDiffV);
