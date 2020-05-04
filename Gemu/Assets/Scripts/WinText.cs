@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class WinText : MonoBehaviour
 {
@@ -20,6 +21,17 @@ public class WinText : MonoBehaviour
         {
             t.text = "PLAYER " + player + " WINS!!!";
             set = true;
+            StartCoroutine("Menu");
         }
+    }
+
+    IEnumerator Menu()
+    {
+        float st = Time.time;
+        while (Time.time - st <= 3)
+        {
+            yield return null;
+        }
+        SceneManager.LoadScene("Menu");
     }
 }

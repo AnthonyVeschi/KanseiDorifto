@@ -254,13 +254,16 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Controls (XBox 360 Controller):\n\tLeft Joystick to Steer\n\tRight Trigger
-    for Throttle\n\tLeft Trigger to Brake\n\tX to Drift Left\n\tB to Drift Right\nDrifting:\n\tPress
-    the button once to begin rotating the car\n\tPress the button a second time once
-    the desired angle has been reached to start the drift\n\tPress the button a third
-    time to exit the drift\nInertia Drift:\n\tWhile drifting in one direction, press
-    the button for the opposite direction to quickly swing the \n\tcar around and
-    drift at the opposite angle of the initial drift"
+  m_Text: "Turning Radius decreases as Velocity increases\nDrifting allows you to
+    take any corner at full speed\nFirst player to complete 3 laps wins\n\nControls
+    (XBox 360 Controller):\n\tLeft Joystick to Steer\n\tRight Trigger for Throttle\n\tLeft
+    Trigger to Brake\n\tX to Drift Left\n\tB to Drift Right\nDrifting:\n\tPress the
+    button once to begin rotating the car\n\tPress the button a second time once the
+    desired angle has been reached to start the drift\n\tSteer during a drift to slighly
+    influence the angle of the drift\n\tPress the button a third time to exit the
+    drift\nInertia Drift:\n\tWhile drifting in one direction, press the button for
+    the opposite direction to quickly swing the \n\tcar around and drift at the opposite
+    angle of the initial drift"
 --- !u!222 &801643483
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -306,7 +309,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000011444, y: -255}
+  m_AnchoredPosition: {x: 0.000011444, y: -328}
   m_SizeDelta: {x: 224.7, y: 69.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &877629259
@@ -321,6 +324,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d753bce94d6a3478216c64bcfcf84a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numPlayers: 0
+  trackNum: 0
+  playersText: {fileID: 0}
+  trackText: {fileID: 0}
+  startButtonObj: {fileID: 0}
 --- !u!114 &877629260
 MonoBehaviour:
   m_ObjectHideFlags: 0
