@@ -17,7 +17,7 @@ public class TimeText : MonoBehaviour
 
     void Update()
     {
-        if (!done && Time.time >= 3) { t = (int)Mathf.Round(Time.time - 3); }
+        if (!done && Time.timeSinceLevelLoad >= 3) { t = (int)Mathf.Round(Time.timeSinceLevelLoad - 3); }
         myText.text = "Time: " + t;
     }
 

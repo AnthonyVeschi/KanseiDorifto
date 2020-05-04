@@ -126,7 +126,7 @@ public class CarControllerScript : MonoBehaviour
     {
         if (player == 1) { accel = Input.GetAxis("Gas1"); }
         else { accel = Input.GetAxis("Gas2"); }
-        if (Time.time <= 3) { accel = 0; }
+        if (Time.timeSinceLevelLoad <= 3) { accel = 0; }
         if (player == 1) { brake = Input.GetAxis("Brake1"); }
         else { brake = Input.GetAxis("Brake1"); }
 
